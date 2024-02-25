@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/user"
 	"runtime"
 	"strconv"
 	"strings"
@@ -44,12 +45,13 @@ var (
 )
 
 func Username() {
-	username, err := exec.Command("whoami").Output()
-	if err != nil {
-		log.Fatal(err)
+	curuser, err := user.Current()
+	user := "Unknown"
+	if err == nil {
+		user = curuser.Username
 	}
 
-	Username_output = fmt.Sprintf(strings.TrimSpace(string(username)))
+	Username_output = fmt.Sprintf(strings.TrimSpace(string(user)))
 }
 
 func Hostname() {
@@ -90,11 +92,15 @@ func Uptime() {
 }
 
 func Packages() {
-	packages, err := exec.Command("sh", "-c", "pacman -Q | wc -l").Output()
+	stats, err := os.ReadDir("/bin/")
 	if err != nil {
 		log.Fatal(err)
 	}
-	Packages_output = fmt.Sprintf(strings.TrimSpace(string(packages)))
+
+	if len(stats) > 0 {
+		Packages_output = fmt.Sprintf("%d",
+			len(stats)-1)
+	}
 }
 
 func Shell() {
